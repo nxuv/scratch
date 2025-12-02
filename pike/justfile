@@ -1,0 +1,5 @@
+@default:
+    just --list
+
+run FILEPATH:
+    pike $1
