@@ -31,14 +31,6 @@ int main() {
 
 void test_gtk() {
     GTK.setup_gtk();
-    // GTK.AboutDialog w = GTK.AboutDialog();
-    // w.set_program_name("GTK Test");
-    // w.signal_connect("destroy", lambda() { exit(0); });
-    // w.set_title("GTK Test Window");
-    // w.set_comments("Testing testing");
-    // array(string) authors = ({"nxuv", "ye"});
-    // w.set_authors(authors);
-    // w.show_now();
 
     GTK.Window window = GTK.Window(GTK.WINDOW_TOPLEVEL);
 
@@ -49,8 +41,21 @@ void test_gtk() {
 
     GTK.Entry edit = GTK.Entry();
     GTK.Button button = GTK.Button("suup");
+    GTK.Button about = GTK.Button("about");
 
     button->signal_connect("clicked", lambda() {write("hiiii\n");});
+
+    about->signal_connect("clicked", lambda() {
+        GTK.AboutDialog w = GTK.AboutDialog();
+        w.set_program_name("GTK Test");
+        w.signal_connect("destroy", lambda() { exit(0); });
+        w.set_title("GTK Test Window");
+        w.set_comments("Testing testing");
+        array(string) authors = ({"nxuv", "et al."});
+        w.set_authors(authors);
+        w.show_now();
+    });
+
     edit->signal_connect("key_release_event",
         lambda(object a, object b, object c, object d, object e) {
             writeln("%O %O %O %O %O", a, b, c, d, e);
@@ -60,6 +65,7 @@ void test_gtk() {
 
     box->add(edit);
     box->add(button);
+    box->add(about);
 
     window->show_all();
 }
