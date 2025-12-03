@@ -1,0 +1,6 @@
+import "module.jnc";
+
+int main() {
+    print_hello("hi");
+    return 0;
+}

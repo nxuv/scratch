@@ -1,0 +1,1 @@
+Painful compilation, a lot of docs for cool fancy features but lacking some actual documentation on how to create C extensions or what certain keywords do. It's not bad for some possible projects, but not for my needs. Still it's an interesting thing I'd like to come back to.

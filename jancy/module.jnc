@@ -1,0 +1,7 @@
+
+alias string = string_t;
+
+void print_hello(string a) {
+    printf("%s\n", a);
+}
+

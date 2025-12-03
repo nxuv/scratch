@@ -6,7 +6,7 @@ SRCDIR := "./src"
 OBJDIR := "./build"
 BINDIR := "./bin"
 
-LIBDIR := "/g/al1-ce/bcd"
+LIBDIR := "../bcd"
 
 SOURCES := shell("find $1 -type f -name '*.d' -printf '%p '", SRCDIR)
 BINARY := BINDIR / "test"

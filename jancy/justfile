@@ -1,0 +1,2 @@
+run:
+    jancy -I. hello.jnc
