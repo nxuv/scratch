@@ -1,0 +1,8 @@
+run FILEPATH:
+    {{FILEPATH}}
+
+clangd:
+	echo 'CompileFlags:' > .clangd
+	echo '    Add: [' >> .clangd
+	echo "        \"-I$(pwd)\"," >> .clangd
+	echo '        ]' >> .clangd
