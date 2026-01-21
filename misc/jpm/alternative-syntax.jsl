@@ -1,0 +1,88 @@
+// Nix-Like dep format for some future package manager
+// Why: To allow easy configuring of system
+// currently I have big pkglist which I would need to
+// manually change to update to another system
+// and with this package manager I would be able to
+// easily sync configs and even have some other definitions
+
+// Possible dep format
+use "packagename"
+add "packagename"
+dep "packagename"
+pkg "packagename"
+pac "packagename"
+
+// For now let's go with add
+// To install package on system
+add "pkm"
+
+// To make package optional (will stay when --clean, but
+// will not be installed with --update)
+add "neofetch" optional=true
+
+// To declare deps
+add "xorg-xinit" {
+    "xorg-xinput"
+    // Any `add` options can also be applied
+    "xorg-docs" optional=true
+}
+
+// Delcare a version
+add "xorg-xrefresh" version="1.1.0-1"
+
+// Install from path (`~` can be used since config is user)
+add "musikcube" path="~/downloads/musikcube"
+
+// Possibly config repo (relative to home) can be also defined
+add "confed" conf="git@github.com:user/confed.git"
+
+// Install with other platforms
+cargo "git-graph"
+
+// Declare custom platform
+declare "go" {
+    install "go get -u"
+    uninstall "go clean -i"
+}
+
+// And after you use it normally
+go "github.com/user/repo@version"
+
+// Include other file and it's declared depenencies
+// Might be useful to separate custom declarations
+// or to separate packages by some criteria
+// or to allow to define something like .profile
+include "~/.config/nixlike/other.sdl"
+// For [ -f ~/.xprofile ] . ~/.xprofile like thing
+include "~/.config/nixlike/user.sdl" optional=true
+
+// run a command before updating (runs sequentially)
+run "yadm add -u"
+run "yadm commit -m 'update'"
+run "yadm push"
+// or run after update
+run "echo 'Update finished'" after=true
+
+// can be also a list (possibly for most of commands)
+// and run only if `echo` is on path
+run after=true require="echo" {
+    "echo finished"
+    "echo update"
+}
+
+// config for package manager itself
+conf "autoclean" true
+// or
+conf autoclean=true
+
+// aliases? (to shell?)
+alias "find" "pkm search"
+
+/* Possible options for package manager itself
+check     - checks versions/updates
+update    - updates needed packages
+conf      - opens config
+clean     - uninstalls packages without deps
+list      - list packages?
+cleanlist - lists packages to clean
+*/

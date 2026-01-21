@@ -1,0 +1,202 @@
+// this is a draft for jpm to figure out syntax and other things like that
+// it is not yet finished and might change in a future
+// also most likely it'll start with more limited syntax without some pretty
+// features like @$!# in start of words, auto-bools, auto-strings, etc
+
+// # import
+// $ var
+// ! delete
+// @ override
+
+// simply import another file as config
+// may be relative or absolute path
+@import "sources.jsl"
+
+// normal install
+pkg.add "neovim"
+
+// add package only on machine with certain hostname
+pkg.add "kcalc" host="Mars"
+// add package only for certain user
+pkg.add "ncal" user="al1-ce"
+
+// will stay when cleaning but will not be autoupdated
+pkg.add "neofetch" optional=true
+
+// install with something
+// install only on certain distro
+pkg.add "selectdefaultapplication-fork-git" with="yay" distro="arch"
+
+// multiple install
+pkm.add with="cargo" {
+    "kdl2html"
+    "shpool"
+}
+
+// another multiple install
+pkg.add "qutebrowser" "luakit"
+
+// ignore updates, same functionality different names?
+pkg.add "gzdoom" update=false
+pkg.add "zmusic-bin" ignore=true
+
+// group keyword allows manipulation on whole group when string
+// it also serves as comment as to what these packages do
+pkg.add group="xorg" {
+    "xorg-drivers"
+    // declare specific version to install
+    "xorg-xrefresh" version="1.1.0-1"
+
+    pkg.group "alsa" {
+        "alsa-card-profiles"
+        "alsa-lib"
+        "alsa-plugins"
+        "alsa-topology-cof"
+        "alsa-ucm-conf"
+        "alsa-utils"
+    }
+    pkg.group "randr" {
+        "randr"
+        "arandr"
+    }
+    pkg.group "gui" {
+        "wezterm"
+        "kitty"
+        "qtile"
+        "qtile-extras"
+    }
+}
+
+pkg.add group="hardware" {
+    "amd-ucode"
+    "aom"
+}
+
+pkg.add group="system" {
+    "avahi"
+    "bash"
+    "zsh"
+    "binutils"
+
+    pkg.group "bluetooth" {
+        "blueman"
+        "bluez"
+        "bluez-libs"
+    }
+
+    "btrfs-progs"
+    "coreutils"
+    "vim"
+    "curl"
+}
+
+pkg.add group="terminal" {
+    "bat"
+    "boxes"
+    "catimg"
+    "pxv" with="yay"
+}
+
+pkg.add group="archlinux" distro="arch" priority=99 {
+    "pacman"
+    "archlinux-keyring"
+    "base"
+    "base-devel"
+    // custom install either accepts string
+    // string specifies way to install package
+    // shell - will use user login shell
+    // alt - will try installing "with" if fails then
+    // will use custom_install commands
+    "yay" with="yay" custom_install="alt-shell" {
+        "cd /tmp/"
+        "sudo pacman -S --needed git base-devel"
+        "git clone https://aur.archlinux.org/yay-bin.git"
+        "cd yay-bin"
+        "makepkg -si"
+    }
+    // depends only installs when depends available
+    // and tries to install it first
+    // config. specifies how to handle configuration
+    "pkm" depends="yay" config.repo="git@github.com:user/pkm-conf.git" config.path="~/.config/pkm"
+}
+
+pkg.add group="misc" {
+    "pass"
+    // provides shows to jpm that this package provides certain bin for depends
+    "aria2" provides="aria2c"
+    "bucklespring"
+}
+
+pkg.add group="neovim-deps" {
+    "pynvim"
+}
+
+pkg.add {
+    "7zip"
+}
+
+pkg.add group="string-manipulation" {
+    "ack"
+}
+
+pkg.add group="fonts" {
+    "adobe-source-code-pro-fonts"
+}
+
+pkg.add group="theme" {
+    "adwaita-cursors"
+    "adwaita-icon-theme"
+    "adwait-icon-theme-legacy"
+    "artix-dark-theme-git"
+    "breeze-icons"
+    "btop"
+}
+
+// subgroups! also works with pkg.add but more explicit
+// however groups only add packages inside and any string
+// not as child would signify group name
+pkg.add group="programming" {
+    // packages with high priority will be installed first
+    // default priority is 50
+    "git" priority=100
+    "make" priority=70
+    pkg.group "d" {
+        "dmd" depends="libphobos,dtools,gcc"
+        "ldc" depends="libphobos,dtools,llvm"
+    }
+    pkg.group "c" priority=70 {
+        "ld"
+        "gcc"
+        "clang"
+    }
+    pkg.group "c++" {
+        "automake"
+        "cmake"
+    }
+
+    // ensure is complicated if conditions that would always warn user that
+    // it expects something if it's false
+    pkg.group "js" {
+        "nodejs"
+        "bun-bin"
+        sys.ensure {
+            env "$NODEPATH"
+            equals "~/.local/share/npm/lib/node_modules"
+        }
+    }
+
+    pkg.group "dart" {
+        "dart"
+        // forbid will always force uninstall some packages
+        pkg.forbid "flutter"
+    }
+}
+
+pkg.add group="programs" {
+    "audacity"
+    "beeper-latest-bin"
+    "blender"
+    // install from somewhere, needs to be more fleshed out with "or"
+    "musikcube" path="~/downloads/musikcube"
+}
+

@@ -1,0 +1,194 @@
+// most likely syntax that will be used
+// something more akin to scripting lanugae yet still
+// allowing for more serialized functionality
+
+// all commands are prefixed with pkg but that can be configured
+
+// - ------------------------------ Adding sources ------------------------------ -
+
+pkg.src "pacman" sudo=true fallback=true priority=50 {
+    install "pacman -S"
+    remove "pacman -R"
+    search "pacman -Ss"
+    sync "pacman -Fy"
+    update "pacman -S"
+}
+
+pkg.src "yay" with="yay" fallback=true priority=70 {
+    install "yay -S"
+    remove "yay -R"
+    search "yay -Ss"
+    sync "yay -Fy"
+    update "yay -S"
+}
+
+pkg.src "pkm" default=true priority=80 {
+    install "pkm install"
+    remove "pkm remove"
+    search "pkm search"
+    sync "pkm checkupdates"
+    update "pkm update"
+}
+
+pkg.src "cargo" {
+    install "install"
+    remove "uninstall"
+    search "search"
+    // empty options (or undeclared) will be ignored
+    // in this case cargo will not be able to update
+    // any packages installed with it
+    sync ""
+    update ""
+}
+
+// - ----------------------------- Adding packages ------------------------------ -
+
+// add package with default manager
+pkg.add "neovim"
+
+// add package and dependencies, auto pkg.add unless
+// specified otherwise
+// packages with high priority will be installed first
+// default priority is 50
+pkg.add "make" priority=100 {
+    "git"
+    "ld"
+    "gcc"
+}
+
+// user group, children will assume pkg.add if anonymous
+// aka anonymous dependencies
+pkg.group "dlang" {
+    "dmd"
+}
+
+// will execute only when hostname="Mars"
+// same as `pkg.add "pkg" host="Mars"`
+// if add=true then will act as pkg.group
+pkg.host "Mars" add=true {
+    "kcalc"
+}
+
+// same as host but for username
+// and everything can be nested
+pkg.user "al1-ce" {
+    pkg.add "ncal"
+}
+
+// same as host but for linux distribution
+pkg.distro "arch" {
+    // installs package with certain package manager
+    pkg.add "selectdefaultapplication-fork-git" with="yay"
+}
+
+// children assume group config, so every
+// package here will be installed with cargo
+pkg.group "rust" with="cargo" {
+    "kdl2html"
+    "shpool"
+}
+
+// package will be installed but not updated
+pkg.add "gzdoom" update=false
+
+// package will not be installed or updated
+// but it will stay when cleaned
+pkg.add "zmusic-bin" optional=true
+
+// keep package on certain version
+// or downgrade if able to
+pkg.add "xorg-xrefresh" version="1.1.0-1"
+
+// add also functions as declaring custom
+// installation source/instructions
+// in this case it must have "when" and "with"
+// when can be
+    // unavailable - when cannot install as is
+    // always - always will use this source
+// with can be either known source or a binary
+// if source is unknown then it'll try using a binary for
+// executing commands
+// shell is a special "with" keyword as is assumes login shell
+pkg.add "yay" when="unavailable" with="shell" {
+    "cd /tmp/"
+    "sudo pacman -S --needed git base-devel"
+    "git clone https://aur.archlinux.org/yay-bin.git"
+    "cd yay-bin"
+    "makepkg -si"
+}
+
+// configure package
+pkg.config "pkm" {
+    config.dir "~/.config/pkm"
+    config.repo "git@github.com:user/pkm.git"
+    config.merge "ff-only"
+}
+
+// include other file in this configuration
+pkg.include "other.jsl"
+
+// create alias, with "from" and "to" order doesnt matter
+// without them order from->to
+pkg.alias from='pkg.add with="cargo"' to="pkg.cargo"
+pkg.alias 'pkg.add with="cargo"' "pkg.cargo"
+
+pkg.alias 'pkg.add with="go"' 'go'
+
+pkg.src "go" {
+    install "go get -u"
+    remove "go clean -i"
+}
+
+// assumes `pkg.add with="go" "github.com/user/repo@version"`
+go "github.com/user/repo@version"
+
+// set package manage config
+// either syntax is valid
+// should clean on each run?
+pkg.opt "autoclean" true
+pkg.opt autoclean=true
+// pkg.run runner
+pkg.opt "runner" "bash"
+// should require prefix in config for default commands
+// or if string then will set other prefix to use
+// should be before everything else to take action
+// since everything executes as script
+// so options at top are prefered
+// even better solution would be:
+    // pkg.include options.jsl
+// options.jsl:
+    // pkg.opt prefix=false
+    // opt ...
+    // opt ...
+pkg.opt prefix=true
+
+// adds alias to commandline instead, aka "jpm .."
+pkg.alias from="find" to="pkm search" cmd=true
+
+// run command with "runner" ("shell" by default)
+// on event (default "always")
+// events are
+    // always
+    // update
+    // sync
+    // clean
+    // install
+    // remove
+    // search
+pkg.run "echo 'Starting update'" on="update"
+
+// Same as above but after finishing event
+pkg.run "echo 'Finished update'" on="update" after=true
+
+// always executes commands when ran with custom runner
+// and if binary is available
+pkg.run with="bash" depends="yadm" {
+    "yadm add -u"
+    // format is standard printf format
+    // will insert output of command into {$}
+    // commands are specified in format="" separated
+    // by ,
+    "yadm commit -m 'backup from {$}'" format="date +'%d/%m/%Y %H:%M'"
+    "yadm push"
+}
+

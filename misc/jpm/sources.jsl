@@ -1,0 +1,48 @@
+
+src.add {
+    name "pacman"
+    install "pacman -S"
+    remove "pacman -R"
+    search "pacman -Ss"
+    sync "pacman -Fy"
+    update "pacman -S"
+    sudo true
+}
+
+src.add {
+    name "yay"
+    install "yay -S"
+    remove "yay -R"
+    search "yay -Ss"
+    sync "yay -Fy"
+    update "yay -S"
+}
+
+src.add {
+    name "pkm"
+    install "pkm install"
+    remove "pkm remove"
+    search "pkm search"
+    sync "pkm checkupdates"
+    update "pkm update"
+    default true
+}
+
+src.add {
+    name "cargo"
+    install "install"
+    remove "uninstall"
+    search "search"
+    sync ""
+    update ""
+}
+
+// src.add {
+//     name ""
+//     install ""
+//     remove ""
+//     search ""
+//     sync ""
+//     update ""
+// }
+
